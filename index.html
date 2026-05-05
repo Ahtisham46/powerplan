@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Athlete's Power Plan — High Performance Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --crimson: #ff1e30;
+    --crimson-glow: rgba(255, 30, 48, 0.4);
+    --pull: #00d2ff;
+    --pull-glow: rgba(0, 210, 255, 0.4);
+    --legs: #22ff88;
+    --legs-glow: rgba(34, 255, 136, 0.3);
+    --rest: #6c757d;
+    --bg: #14161a;
+    --card-bg: #1e2227;
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #f0f0f0;
+    --text-dim: rgba(240, 240, 240, 0.4);
+    --container-border: rgba(138, 126, 255, 0.15);
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.2;
+    overflow-x: hidden;
+}
+
+/* Background Effects */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at 50% 0%, rgba(255, 30, 48, 0.03), transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(0, 210, 255, 0.03), transparent 40%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Header Section */
+header {
+    max-width: 1200px;
+    margin: 0 auto 50px auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand .subtitle {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    color: var(--crimson);
+}
+
+.brand h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+}
+
+.hud-stats {
+    display: flex;
+    gap: 40px;
+}
+
+.stat-item { text-align: center; }
+.stat-item .label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+.stat-item .value { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; font-weight: 700; color: #fff; }
+.stat-item .value.active { color: var(--legs); text-shadow: 0 0 10px var(--legs-glow); }
+
+/* Control Bar */
+.controls {
+    max-width: 1200px;
+    margin: 0 auto 30px auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.controls .label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+}
+
+.rest-picker {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.rest-btn {
+    background: #2a2e35;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rest-btn:hover {
+    border-color: rgba(255,255,255,0.3);
+    color: #fff;
+}
+
+.rest-btn.active {
+    background: var(--crimson);
+    color: #fff;
+    border-color: var(--crimson);
+    box-shadow: 0 0 15px var(--crimson-glow);
+}
+
+/* The Grid Container */
+.grid-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+    border: 1px solid var(--container-border);
+    border-radius: 20px;
+    background: rgba(0,0,0,0.2);
+    backdrop-filter: blur(10px);
+}
+
+.plan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+/* Card Styling */
+.day-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 25px;
+    position: relative;
+    border-left: 4px solid var(--accent);
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.day-card:hover { 
+    transform: translateY(-5px); 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+.push { --accent: var(--crimson); --glow: var(--crimson-glow); }
+.pull { --accent: var(--pull); --glow: var(--pull-glow); }
+.legs { --accent: var(--legs); --glow: var(--legs-glow); }
+
+.rest { 
+    --accent: var(--rest); 
+    --glow: transparent; 
+}
+
+/* Specific Grid rules to stretch the Rest Day across the bottom row */
+@media (min-width: 1040px) {
+    .rest { grid-column: 1 / 4; } 
+}
+@media (min-width: 710px) and (max-width: 1039px) {
+    .rest { grid-column: 1 / 3; } 
+}
+
+
+/* Card Content Types */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+
+.day-info { display: flex; align-items: baseline; gap: 8px; }
+.day-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 2px; color: var(--text); }
+.day-num { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: var(--text-dim); font-weight: 700; }
+
+.session-tag {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    color: var(--accent);
+    font-weight: 700;
+    border: 1px solid var(--accent);
+    padding: 4px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    box-shadow: 0 0 8px var(--glow);
+}
+
+.card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.muscle-group { display: flex; flex-direction: column; gap: 4px; }
+.muscle-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.muscle-name::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 2px;
+    transform: rotate(45deg);
+    box-shadow: 0 0 10px var(--glow);
+}
+
+.rest .muscle-name::before { background: var(--rest); box-shadow: none; border-radius: 50%; transform: none; }
+
+.muscle-desc {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 1.5px;
+    padding-left: 22px;
+    text-transform: uppercase;
+}
+
+.card-footer {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-start;
+}
+
+/* Interactive Muscle Groups */
+.muscle-group.interactive {
+    cursor: pointer;
+    padding: 10px;
+    margin: -10px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.muscle-group.interactive:hover {
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.1);
+    transform: translateX(5px);
+}
+
+/* Exercise Item Styling */
+.exercise-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 15px; /* Added space for checkmark */
+}
+
+.exercise-item:hover {
+    border-color: currentColor;
+    background: rgba(255,255,255,0.05);
+    transform: scale(1.02);
+}
+
+.exercise-item .ex-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.exercise-item strong {
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+}
+
+.exercise-item span {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+}
+
+.exercise-item .time-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    background: rgba(255,255,255,0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* --- COMPLETION TOGGLE STYLES --- */
+.completion-toggle {
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    color: transparent;
+    font-size: 14px;
+    font-weight: bold;
+}
+.completion-toggle:hover {
+    border-color: #fff;
+    transform: scale(1.1);
+}
+.exercise-item.completed .completion-toggle {
+    background-color: currentColor;
+    border-color: currentColor;
+    color: #000;
+    box-shadow: 0 0 10px currentColor;
+}
+.exercise-item.completed .ex-info {
+    opacity: 0.4;
+    text-decoration: line-through;
+}
+/* ------------------------------------ */
+
+/* Video Player */
+.video-wrapper {
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.back-btn {
+    background: transparent;
+    border: 1px solid var(--text-dim);
+    color: var(--text);
+    font-family: 'Orbitron', sans-serif;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    align-self: flex-start;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+}
+
+.back-btn:hover {
+    background: var(--text);
+    color: #000;
+}
+
+/* Animation Overlay */
+.scanline {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.1) 51%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.15;
+}
+
+/* Modal Styling */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal-content {
+    background: #111418;
+    border: 1px solid var(--pull);
+    box-shadow: 0 0 30px var(--pull-glow);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 650px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    color: var(--pull);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+.close-btn:hover { color: #fff; }
+
+.modal-body {
+    padding: 20px 30px;
+    overflow-y: auto;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+/* Formatted Protocol Output Styles */
+.modal-body ul { padding-left: 20px; margin: 15px 0 25px 0; }
+.modal-body li { margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;}
+.modal-body li:last-child { border-bottom: none; }
+.modal-body strong { color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.95rem; letter-spacing: 0.5px; display: block; margin-bottom: 2px;}
+.modal-body h3 { 
+    font-family: 'Bebas Neue', sans-serif; 
+    color: inherit; 
+    font-size: 1.8rem; 
+    margin: 15px 0 10px 0; 
+    letter-spacing: 1px;
+    border-left: 4px solid currentColor;
+    padding-left: 10px;
+}
+
+.loader {
+    display: none;
+    text-align: center;
+    padding: 40px;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--pull);
+    letter-spacing: 2px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; text-shadow: 0 0 10px var(--pull-glow); }
+}
+
+@media (max-width: 768px) {
+    header { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .hud-stats { width: 100%; justify-content: flex-start; }
+    .grid-container { padding: 15px; border: none; background: transparent; }
+    .modal-body { padding: 15px; }
+}
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<header>
+    <div class="brand">
+        <div class="subtitle">Peak Physiology Protocol</div>
+        <h1>Power Plan</h1>
+    </div>
+    <div class="hud-stats">
+        <div class="stat-item">
+            <div class="label">Cycle</div>
+            <div class="value">V-01</div>
+        </div>
+        <div class="stat-item">
+            <div class="label">Intensity</div>
+            <div class="value">94%</div>
+        </div>
+        <div class="stat-item">
+            <div class="label">Status</div>
+            <div class="value active">Active</div>
+        </div>
+    </div>
+</header>
+
+<div class="controls">
+    <div class="label">Select Weekly Rest Interval:</div>
+    <div class="rest-picker" id="restPicker">
+        <!-- JS Injection -->
+    </div>
+</div>
+
+<main class="grid-container">
+    <div class="plan-grid" id="mainGrid">
+        <!-- JS Injection -->
+    </div>
+</main>
+
+<footer style="text-align: center; margin-top: 50px; padding-bottom: 20px; border-top: 1px solid var(--border); padding-top: 30px; max-width: 1200px; margin-left: auto; margin-right: auto;">
+    <div style="font-family: 'Orbitron', sans-serif; font-size: 0.85rem; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase;">
+        Engineered by <span style="color: #fff; text-shadow: 0 0 10px var(--pull-glow); font-weight: 700;">Ahtisham Ali</span>
+    </div>
+</footer>
+
+<!-- Protocol Modal -->
+<div class="modal-overlay" id="protocolModal">
+    <div class="modal-content" id="modalContent">
+        <div class="modal-header">
+            <div class="modal-title" id="modalTitle">🧬 Loading Protocol...</div>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="loader" id="loader">DECRYPTING ARCHIVE...</div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
+
+const WORKOUTS = [
+    { type: 'push', m1: 'CHEST', sub1: 'PRIMARY: PECTORALS', m2: 'TRICEPS', sub2: 'SECONDARY: PUSH' },
+    { type: 'pull', m1: 'BACK', sub1: 'PRIMARY: LATS & RHOMBOIDS', m2: 'BICEPS', sub2: 'SECONDARY: PULL' },
+    { type: 'legs', m1: 'LEGS', sub1: 'PRIMARY: QUADS & GLUTES', m2: 'SHOULDERS', sub2: 'SECONDARY: DELTOIDS' },
+    { type: 'push', m1: 'CHEST', sub1: 'PRIMARY: PECTORALS', m2: 'TRICEPS', sub2: 'SECONDARY: PUSH' },
+    { type: 'pull', m1: 'BACK', sub1: 'PRIMARY: LATS & RHOMBOIDS', m2: 'BICEPS', sub2: 'SECONDARY: PULL' },
+    { type: 'legs', m1: 'LEGS', sub1: 'PRIMARY: HAMSTRINGS & GLUTES', m2: 'SHOULDERS', sub2: 'SECONDARY: DELTOIDS' }
+];
+
+// YouTube Video Database with Playlist Index Map Fallbacks
+const VIDEO_DB = {
+    chest: { id: 'zD266B2jk0s', index: 1 },
+    back: { id: 'fX36liNtKzw', index: 2 },
+    legs: { id: 'QXtXEug0PLU', index: 3 },
+    triceps: { id: '8Nkfuhxsl-0', index: 4 },
+    biceps: { id: 'hmeTQHsBwv8', index: 5 },
+    shoulders: { id: 'zEf4pKoKc70', index: 6 }
+};
+
+// The Science-Based Protocol Database
+const PROTOCOL_DB = [
+    {   // Day 0: Push 1
+        vid1: "chest",
+        t1: "CHEST 1",
+        ex1: [
+            { name: "Banded External Rotation", desc: "Warm-up / Pre-hab", time: "3:50", start: 230 },
+            { name: "Incline DB Bench Press", desc: "Primary Compound - Upper Chest", time: "4:50", start: 290 },
+            { name: "Dip", desc: "Secondary Compound - Lower Chest/Triceps", time: "9:55", start: 595 },
+            { name: "Crossover", desc: "Isolation - Mid/Lower Pecks", time: "6:15", start: 375 },
+            { name: "Floor Fly", desc: "Isolation - Chest Stretch/Contraction", time: "7:30", start: 450 },
+            { name: "Deficit 1.5 Pushup Ladder", desc: "Mechanical Dropset Finisher", time: "8:40", start: 520 }
+        ],
+        vid2: "triceps",
+        t2: "TRICEPS 1",
+        ex2: [
+            { name: "Tricep Pushdown", desc: "Activation / Lateral Head focus", time: "3:20", start: 200 },
+            { name: "Lying DB Extension", desc: "Heavy Stretch / Long Head focus", time: "4:00", start: 240 },
+            { name: "DB Kickback", desc: "Peak Contraction", time: "5:30", start: 330 },
+            { name: "Cobra Pushup", desc: "Bodyweight Finisher", time: "6:30", start: 390 }
+        ]
+    },
+    {   // Day 1: Pull 1
+        vid1: "back",
+        t1: "BACK 1 (Width & Lat Detail)",
+        ex1: [
+            { name: "Scap Pulldown", desc: "The 'Primer' – do this first to engage the lats", time: "3:31", start: 211 },
+            { name: "Pull-Up (Bodyweight/Banded)", desc: "Primary Compound – vertical pull", time: "8:33", start: 513 },
+            { name: "Lat Pulldown (Narrow Grip)", desc: "Secondary Compound – lower lat stretch", time: "5:15", start: 315 },
+            { name: "Seated Cable Row (Wide Elbows)", desc: "Mid-back/Rhomboid focus", time: "4:20", start: 260 },
+            { name: "Dumbbell Pullover", desc: "Lat isolation in the stretched position", time: "7:25", start: 445 },
+            { name: "Straight Arm Pushdown", desc: "The 'Finisher' – strict lat isolation", time: "6:20", start: 380 }
+        ],
+        vid2: "biceps",
+        t2: "BICEPS 1",
+        ex2: [
+            { name: "Strict Curl -> Cheat Curl", desc: "Power output overload", time: "0:25", start: 25 },
+            { name: "Cross Body Hammer Curl", desc: "Brachialis & forearm focus", time: "1:35", start: 95 },
+            { name: "Cable Stretch Drag Curl", desc: "Constant tension on long head", time: "2:55", start: 175 },
+            { name: "Mentzer Curl", desc: "Extreme peak contraction", time: "4:05", start: 245 }
+        ]
+    },
+    {   // Day 2: Legs 1 & Shoulders 1
+        vid1: "legs",
+        t1: "LEGS 1 (Posterior & Heavy Pulls)",
+        ex1: [
+            { name: "Reverse Hypers", desc: "Warm-up/Low back decompression", time: "3:20", start: 200 },
+            { name: "Deadlift", desc: "Primary Compound - Total body/Posterior chain", time: "3:55", start: 235 },
+            { name: "BB Squat or Box Squat", desc: "Secondary Compound", time: "10:35", start: 635 },
+            { name: "Hip Thrust", desc: "Glute isolation", time: "12:05", start: 725 },
+            { name: "SFB Curl or Seated Hamstring Curl", desc: "Hamstring isolation", time: "7:20", start: 440 },
+            { name: "Standing Calf Raises", desc: "Calf finisher", time: "8:40", start: 520 }
+        ],
+        vid2: "shoulders",
+        t2: "SHOULDERS 1",
+        ex2: [
+            { name: "OHP (Overhead Press)", desc: "Primary pressing strength", time: "1:30", start: 90 },
+            { name: "Lateral Raise", desc: "Medial deltoid isolation", time: "2:50", start: 170 },
+            { name: "Rear Delt Row", desc: "Posterior chain tie-in", time: "4:00", start: 240 }
+        ]
+    },
+    {   // Day 3: Push 2
+        vid1: "chest",
+        t1: "CHEST 2 (Flat Pressing Priority)",
+        ex1: [
+            { name: "Band Pull-Apart", desc: "Warm-up/Scapular Stability", time: "11:00", start: 660 },
+            { name: "DB Bench Press", desc: "Primary Compound - Overall Chest Mass", time: "11:35", start: 695 },
+            { name: "Incline Cable Press", desc: "Secondary Compound - Upper Chest/Constant Tension", time: "13:00", start: 780 },
+            { name: "High-Low Crossover", desc: "Isolation - Focus on the Squeeze", time: "12:20", start: 740 },
+            { name: "1.5 Dip Ladder", desc: "Metabolic Finisher", time: "13:45", start: 825 },
+            { name: "Prison Yard Pushup", desc: "Final Burnout", time: "14:30", start: 870 }
+        ],
+        vid2: "triceps",
+        t2: "TRICEPS 2",
+        ex2: [
+            { name: "PJR Pullover", desc: "High Tension Stretch / Compound movement", time: "7:45", start: 465 },
+            { name: "Cable Pushaway", desc: "Overhead Long Head focus", time: "8:35", start: 515 },
+            { name: "X Pushdown", desc: "Maximum contraction for the Lateral Head", time: "9:35", start: 575 },
+            { name: "Bench Dip", desc: "Final Burnout / Mechanical Drop-set", time: "10:45", start: 645 }
+        ]
+    },
+    {   // Day 4: Pull 2
+        vid1: "back",
+        t1: "BACK 2 (Thickness & Power)",
+        ex1: [
+            { name: "Face Pulls", desc: "Warm-up – posture and rotator cuff health", time: "9:50", start: 590 },
+            { name: "Barbell Row", desc: "Primary Compound – heavy thickness builder", time: "10:13", start: 613 },
+            { name: "Wide Grip Lat Pulldown", desc: "Secondary Compound – upper lat/width focus", time: "10:56", start: 656 },
+            { name: "Dumbbell High Pull", desc: "Upper back/Trap/Rear Delt finisher", time: "11:57", start: 717 }
+        ],
+        vid2: "biceps",
+        t2: "BICEPS 2",
+        ex2: [
+            { name: "Chinup -> Eccentric Chin Hang", desc: "Maximum overload and grip tension", time: "5:55", start: 355 },
+            { name: "Spider Curl", desc: "Short head isolation", time: "7:25", start: 445 },
+            { name: "Inclined Curl", desc: "Deep stretch long head focus", time: "8:25", start: 505 },
+            { name: "Standing Curl", desc: "Heavy mass builder", time: "9:25", start: 565 }
+        ]
+    },
+    {   // Day 5: Legs 2 & Shoulders 2
+        vid1: "legs",
+        t1: "LEGS 2 (Anterior & Quads)",
+        ex1: [
+            { name: "Banded Overhead Squat", desc: "Warm-up/Mobility primer", time: "10:05", start: 605 },
+            { name: "Front Squat", desc: "Primary Compound - Quad focus", time: "5:35", start: 335 },
+            { name: "Reverse Lunge", desc: "Unilateral/Single-leg strength", time: "6:35", start: 395 },
+            { name: "Spanish Squat", desc: "Quad isolation/Patellar tendon health", time: "13:05", start: 785 },
+            { name: "GHR or Nordic Curl", desc: "Hamstring finisher", time: "14:05", start: 845 },
+            { name: "Seated Calf Raises", desc: "Soleus/Calf finisher", time: "15:45", start: 945 }
+        ],
+        vid2: "shoulders",
+        t2: "SHOULDERS 2",
+        ex2: [
+            { name: "Cheat Lateral", desc: "Heavy mechanical overload", time: "5:15", start: 315 },
+            { name: "Inclined Front Raise", desc: "Anterior delt stretch", time: "6:05", start: 365 },
+            { name: "Facepull", desc: "Postural alignment finisher", time: "7:05", start: 425 }
+        ]
+    }
+];
+
+let currentRestDay = 6; 
+let completedExercises = JSON.parse(localStorage.getItem('athletePowerPlanCompleted')) || {};
+
+function toggleCompletion(event, exerciseId, toggleElement) {
+    event.stopPropagation(); // Prevents video player from opening when clicking the checkbox
+    
+    const exerciseItem = toggleElement.closest('.exercise-item');
+    
+    if (completedExercises[exerciseId]) {
+        delete completedExercises[exerciseId];
+        exerciseItem.classList.remove('completed');
+        toggleElement.innerHTML = '';
+    } else {
+        completedExercises[exerciseId] = true;
+        exerciseItem.classList.add('completed');
+        toggleElement.innerHTML = '✓';
+    }
+    
+    localStorage.setItem('athletePowerPlanCompleted', JSON.stringify(completedExercises));
+}
+
+function init() {
+    renderPicker();
+    renderGrid();
+}
+
+function renderPicker() {
+    const picker = document.getElementById('restPicker');
+    picker.innerHTML = DAYS.map((d, i) => `
+        <button class="rest-btn ${i === currentRestDay ? 'active' : ''}" onclick="updateRest(${i})">
+            ${d.substring(0, 3)}
+        </button>
+    `).join('');
+}
+
+function updateRest(dayIdx) {
+    currentRestDay = dayIdx;
+    renderPicker();
+    renderGrid();
+}
+
+function renderGrid() {
+    const grid = document.getElementById('mainGrid');
+    grid.innerHTML = '';
+
+    let seqIdx = 0;
+    let dayNum = 1;
+    let counts = { push: 0, pull: 0, legs: 0 };
+
+    DAYS.forEach((day, i) => {
+        const card = document.createElement('div');
+        
+        if (i === currentRestDay) {
+            card.className = `day-card rest`;
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="day-info">
+                        <span class="day-name">${day}</span>
+                    </div>
+                    <span class="session-tag">SYSTEM IDLE</span>
+                </div>
+                <div class="card-body">
+                    <div class="muscle-group">
+                        <div class="muscle-name">REST</div>
+                        <div class="muscle-desc">RECOVERY DAY</div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="load-btn" onclick="openProtocolModal('rest', 'rest', 'Rest & Recovery')">🧬 LOAD RECOVERY</button>
+                </div>
+            `;
+        } else {
+            const w = WORKOUTS[seqIdx];
+            counts[w.type]++;
+            const currentCount = counts[w.type];
+            const formattedDayNum = String(dayNum).padStart(2, '0');
+
+            card.className = `day-card ${w.type}`;
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="day-info">
+                        <span class="day-name">${day}</span>
+                        <span class="day-num">| ${formattedDayNum}</span>
+                    </div>
+                    <span class="session-tag">REBUILDING</span>
+                </div>
+                <div class="card-body">
+                    <div class="muscle-group interactive" onclick="openExerciseList(${seqIdx}, 1, '${w.type}')">
+                        <div class="muscle-name">${w.m1} ${currentCount}</div>
+                        <div class="muscle-desc">${w.sub1}</div>
+                    </div>
+                    <div class="muscle-group interactive" onclick="openExerciseList(${seqIdx}, 2, '${w.type}')">
+                        <div class="muscle-name">${w.m2} ${currentCount}</div>
+                        <div class="muscle-desc">${w.sub2}</div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px;">CLICK MUSCLE GROUP TO VIEW</span>
+                </div>
+            `;
+            seqIdx++;
+            dayNum++;
+        }
+        
+        grid.appendChild(card);
+    });
+}
+
+// --- PROTOCOL MODAL & VIDEO LOGIC ---
+const modal = document.getElementById('protocolModal');
+const modalBody = document.getElementById('modalBody');
+const modalTitle = document.getElementById('modalTitle');
+const loader = document.getElementById('loader');
+const modalContent = document.getElementById('modalContent');
+
+function closeModal() {
+    modal.classList.remove('active');
+    const videoWrapper = document.getElementById('videoWrapper');
+    if (videoWrapper) videoWrapper.style.display = 'none';
+    const videoContainer = document.getElementById('videoContainer');
+    if (videoContainer) videoContainer.innerHTML = '';
+}
+
+function openExerciseList(index, groupNum, type) {
+    modal.classList.add('active');
+    modalBody.innerHTML = '';
+    loader.style.display = 'block';
+    
+    const colors = { push: 'var(--crimson)', pull: 'var(--pull)', legs: 'var(--legs)', rest: 'var(--text)' };
+    const glows = { push: 'var(--crimson-glow)', pull: 'var(--pull-glow)', legs: 'var(--legs-glow)', rest: 'rgba(255,255,255,0.2)' };
+    
+    const color = colors[type];
+    const glow = glows[type];
+    
+    modalTitle.style.color = color;
+    modalBody.style.color = color;
+    modalContent.style.borderColor = color;
+    modalContent.style.boxShadow = `0 0 30px ${glow}`;
+    loader.style.color = color;
+    loader.style.textShadow = `0 0 10px ${glow}`;
+    
+    const data = PROTOCOL_DB[index];
+    const titleText = groupNum === 1 ? data.t1 : data.t2;
+    const exercises = groupNum === 1 ? data.ex1 : data.ex2;
+    const vidKey = groupNum === 1 ? data.vid1 : data.vid2;
+    
+    modalTitle.innerHTML = `🧬 LOADING ${titleText}...`;
+
+    setTimeout(() => {
+        loader.style.display = 'none';
+        modalTitle.innerHTML = `🧬 ${titleText} EXERCISES`;
+        
+        let htmlContent = `<div id="exerciseListContainer">`;
+        
+        exercises.forEach((ex, i) => {
+            const safeName = ex.name.replace(/'/g, "\\'");
+            const exerciseId = `ex-${index}-${groupNum}-${i}`;
+            const isCompleted = completedExercises[exerciseId];
+            const checkClass = isCompleted ? 'completed' : '';
+            const checkIcon = isCompleted ? '✓' : '';
+
+            htmlContent += `
+                <div class="exercise-item ${checkClass}" onclick="playVideo('${vidKey}', ${ex.start}, '${safeName}')" style="color: ${color};">
+                    <div class="completion-toggle" onclick="toggleCompletion(event, '${exerciseId}', this)">
+                        ${checkIcon}
+                    </div>
+                    <div class="ex-info" style="flex: 1;">
+                        <strong>${ex.name}</strong>
+                        <span>${ex.desc}</span>
+                    </div>
+                    <div class="time-badge">
+                        ▶ ${ex.time}
+                    </div>
+                </div>
+            `;
+        });
+        
+        htmlContent += `</div>
+            <div class="video-wrapper" id="videoWrapper">
+                <button class="back-btn" onclick="backToList()">← BACK TO EXERCISES</button>
+                <div class="video-container" id="videoContainer"></div>
+                <h3 id="currentVideoTitle" style="margin-top: 10px; font-size: 1.2rem; color: #fff; line-height: 1.4;"></h3>
+            </div>
+        `;
+        
+        modalBody.innerHTML = htmlContent;
+    }, 300);
+}
+
+function playVideo(vidKey, startSeconds, exerciseName) {
+    document.getElementById('exerciseListContainer').style.display = 'none';
+    const videoWrapper = document.getElementById('videoWrapper');
+    const videoContainer = document.getElementById('videoContainer');
+    
+    videoWrapper.style.display = 'flex';
+    
+    const vData = VIDEO_DB[vidKey] || { id: '', index: 1 };
+    const videoId = vData.id;
+    
+    let iframeSrc = '';
+    
+    // Formatting the seconds to MM:SS string for the button display
+    const mins = Math.floor(startSeconds / 60);
+    const secs = (startSeconds % 60).toString().padStart(2, '0');
+    const formattedTime = `${mins}:${secs}`;
+    
+    if (videoId && videoId.trim() !== '') {
+        // Fix #1: Autoplay parameter REMOVED. 
+        // Browsers block autoplaying videos which was forcing the player to reset to 0:00.
+        // Now you click play manually and it perfectly syncs to the timestamp.
+        iframeSrc = `https://www.youtube.com/embed/${videoId}?start=${startSeconds}&rel=0`;
+        
+        // Fix #2: Added the "Open Directly in YouTube" bypass button for channels that block embedding.
+        document.getElementById('currentVideoTitle').innerHTML = `
+            ${exerciseName}
+            <div style="margin-top: 15px; text-align: center;">
+                <a href="https://www.youtube.com/watch?v=${videoId}&t=${startSeconds}s" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: #ff0000; color: #fff; text-decoration: none; border-radius: 6px; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s ease;">
+                    <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: currentColor;"><path d="M10,15L15.19,12L10,9V15M21.56,7.17C21.69,7.64 21.78,8.27 21.84,9.07C21.91,9.87 21.94,10.84 21.94,12C21.94,13.16 21.91,14.13 21.84,14.93C21.78,15.73 21.69,16.36 21.56,16.83C21.31,17.73 20.73,18.31 19.83,18.56C19.36,18.69 18.5,18.78 17.2,18.84C15.88,18.91 14.15,18.94 12,18.94C9.85,18.94 8.12,18.91 6.8,18.84C5.5,18.78 4.64,18.69 4.17,18.56C3.27,18.31 2.69,17.73 2.44,16.83C2.31,16.36 2.22,15.73 2.16,14.93C2.09,14.13 2.06,13.16 2.06,12C2.06,10.84 2.09,9.87 2.16,9.07C2.22,8.27 2.31,7.64 2.44,7.17C2.69,6.27 3.27,5.69 4.17,5.44C4.64,5.31 5.5,5.22 6.8,5.16C8.12,5.09 9.85,5.06 12,5.06C14.15,5.06 15.88,5.09 17.2,5.16C18.5,5.22 19.36,5.31 19.83,5.44C20.73,5.69 21.31,6.27 21.56,7.17Z"/></svg>
+                    Open directly in YouTube (At ${formattedTime})
+                </a>
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 10px; font-family: 'Rajdhani', sans-serif;">
+                    <strong>Note:</strong> Some channels disable website embedding. If the video player above is grey or says "Unavailable", click the red button to watch it perfectly synced natively.
+                </p>
+            </div>
+        `;
+    } else {
+        iframeSrc = `https://www.youtube.com/embed/videoseries?list=PLRS2DE4P39EdzTqPZTL_uYvMZi7tichL0&index=${vData.index}`;
+        document.getElementById('currentVideoTitle').innerHTML = `${exerciseName}`;
+    }
+    
+    videoContainer.innerHTML = `
+        <iframe 
+            src="${iframeSrc}" 
+            title="YouTube video player" 
+            frameborder="0" 
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+        </iframe>
+    `;
+}
+
+function backToList() {
+    document.getElementById('videoWrapper').style.display = 'none';
+    document.getElementById('videoContainer').innerHTML = ''; 
+    document.getElementById('exerciseListContainer').style.display = 'block';
+}
+
+function openProtocolModal(indexOrType, type, titleText) {
+    if (indexOrType === 'rest') {
+        modal.classList.add('active');
+        modalBody.innerHTML = '';
+        loader.style.display = 'block';
+        
+        modalTitle.style.color = 'var(--text)';
+        modalContent.style.borderColor = 'var(--text)';
+        modalContent.style.boxShadow = `0 0 30px rgba(255,255,255,0.2)`;
+        loader.style.color = 'var(--text)';
+        
+        modalTitle.innerHTML = `🧬 LOADING ${titleText}...`;
+        
+        setTimeout(() => {
+            loader.style.display = 'none';
+            modalTitle.innerHTML = `🧬 ${titleText} PROTOCOL`;
+            modalBody.innerHTML = `
+                <h3>ACTIVE RECOVERY</h3>
+                <ul style="color: var(--text);">
+                    <li><strong>10-Min Mobility Flow</strong> Focus on hips, thoracic spine, and ankles to prime for the next cycle.</li>
+                    <li><strong>Nervous System Recovery</strong> 5 minutes of box breathing (4s in, 4s hold, 4s out, 4s hold) to downregulate.</li>
+                    <li><strong>Hydration & Nutrition</strong> Prioritize protein intake and electrolyte replenishment.</li>
+                </ul>
+            `;
+        }, 300);
+    }
+}
+
+window.onload = init;
+</script>
+</body>
+</html>
